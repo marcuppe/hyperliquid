@@ -1,11 +1,21 @@
 # hyperliquid (agent skill)
 
-An agent skill for [Hyperliquid](https://hyperliquid.xyz) — the on-chain perps + spot DEX. Drop this into your Claude Code / Claude Agent setup and your agent will know how to:
+An agent skill for [Hyperliquid](https://hyperliquid.xyz) — the on-chain perps + spot DEX. Drop it into Claude Code or any Claude Agent SDK setup and the agent will know how to:
 
-- Pull perp and spot market data: prices, order books, candles, funding, open interest
-- Query user state: positions, margin, fills, portfolio
-- Subscribe to live data via WebSocket
-- Place and cancel orders (testnet by default; mainnet requires an explicit opt-in and confirmation)
+- Pull market data for native perps and spot: mids, L2 books, candles, funding (realized + predicted), open interest, 24h volume
+- Query and inspect **HIP-3 builder-deployed dexes** (XYZ stocks/commodities/FX, Felix, Ventuals, HyENA, Markets by Kinetiq, ABCDEx, dreamcash, Paragon) and their `dex:COIN` markets like `xyz:AAPL` or `xyz:GOLD` — list all dexes, look up by deployer address, inspect any dex's markets + OI caps
+- Query user state for any wallet address: positions, margin summary, open orders, fills, portfolio history
+- Subscribe to live data via WebSocket (trades, L2 updates, user events)
+- Place and cancel orders via the Exchange endpoint — testnet by default, mainnet requires explicit opt-in + confirmation, with agent-wallet guidance so you don't hand a bot your master key
+- Launch **live TUI widgets** (`orderbook`, `ticker`, `tape`) in a floating terminal window on macOS — HL-mint colored L2 ladder, multi-market price cards with sparklines + funding, and a scrolling trade tape with rolling flow delta. Works with native coins *and* HIP-3 markets.
+
+Example prompts once it's installed:
+
+- *"What's BTC doing on Hyperliquid?"*
+- *"Pull the last 7 days of funding for ETH."*
+- *"Which HIP-3 dex is deployed by `0x88806a71d…`?"*
+- *"Show me a live orderbook for `xyz:TSLA`."*
+- *"Spawn a ticker with BTC, ETH, HYPE, and `xyz:GOLD`."*
 
 ## Install
 
@@ -84,7 +94,12 @@ hyperliquid/
 
 ## Safety
 
-This skill **defaults to testnet** for any action that signs with a key. Do not point it at mainnet with a funded key unless you have read `references/trading.md` and understand what each script does.
+- **Read paths** (market data, widgets, user-state queries) default to **mainnet** — no key required, nothing can go wrong.
+- **Signed paths** (place / cancel / modify orders) default to **testnet**. Switching to mainnet is an explicit `HL_ENV=mainnet` opt-in *and* the trading scripts require you to type `yes` before they submit.
+- **Use an agent wallet, not your master key.** Hyperliquid's agent/API wallets can trade but cannot withdraw — the right credential to hand a bot. Full setup in [`references/trading.md`](references/trading.md) § *Agent wallets*.
+- **Keys are read from `HL_PRIVATE_KEY` only** — never from config files you might commit. There is no key caching.
+
+Read [`references/trading.md`](references/trading.md) before you ever point this at mainnet with a funded key.
 
 ## License
 
