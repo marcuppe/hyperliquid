@@ -15,9 +15,9 @@ Grant it. You only have to do it once. You can pre-grant it at **System Settings
 ## Install
 
 ```bash
-pip install rich websocket-client requests
+pip install rich websocket-client
 # On recent macOS system Python (PEP 668):
-pip install --user --break-system-packages rich websocket-client requests
+pip install --user --break-system-packages rich websocket-client
 ```
 
 ## Usage
