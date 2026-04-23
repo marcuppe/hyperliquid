@@ -12,10 +12,26 @@ An agent skill for [Hyperliquid](https://hyperliquid.xyz) — the on-chain perps
 One line — add the skill to your agent and you're done:
 
 ```bash
-npx skills add <owner>/hyperliquid
+npx skills add marcuppe/hyperliquid
 ```
 
 Or clone into your `.claude/skills/` (Claude Code) or agent's skills directory.
+
+> **Note on the install-time security audit.** `skills.sh` runs an automated
+> audit that currently flags this skill as `CRITICAL`. If you read the
+> audit's own analysis text, it says the opposite — it confirms the package
+> only calls Hyperliquid's official API, handles private keys via env vars,
+> escapes all subprocess arguments with `shlex.quote`, and fetches only
+> well-known PyPI dependencies. The CRITICAL verdict appears to be a
+> rule-based false positive triggered by two things intrinsic to the skill:
+> (1) Hyperliquid's API lives on a `.xyz` TLD, which several domain
+> reputation feeds flag on principle; and (2) the trading script combines
+> private-key reading with a network call to an exchange endpoint — the
+> *shape* of key-stealing malware, even though this code sends signed
+> orders you explicitly authored. The audit doesn't expose which file or
+> which URLs it flagged, and the narrative analysis contradicts the
+> verdict. Install with your eyes open, or clone and read the source (it's
+> ~20 small Python files); don't just trust the badge.
 
 **You don't need to pip-install anything up front.** Market-data scripts are standard-library-only and work immediately. For the live widgets and trading scripts the agent installs their small dep sets automatically the first time you ask for them — you just see one `pip install` line in the agent's tool output.
 
@@ -31,16 +47,23 @@ hyperliquid/
 │   ├── websocket.md          # WS subscription types and message shapes
 │   └── trading.md            # signing, agent wallets, order types, safety
 └── scripts/
-    ├── market_data/          # runnable, no key required
+    ├── market_data/          # runnable, no key required, stdlib-only
     │   ├── all_mids.py
     │   ├── order_book.py
     │   ├── candles.py
     │   ├── funding.py
-    │   └── meta.py
-    └── trading/              # requires HL_PRIVATE_KEY
+    │   ├── meta.py
+    │   └── hip3_dexes.py
+    ├── trading/              # requires HL_PRIVATE_KEY
+    │   ├── README.md
+    │   ├── place_order.py
+    │   └── cancel_order.py
+    └── widgets/              # live TUI widgets (rich + websocket-client)
         ├── README.md
-        ├── place_order.py
-        └── cancel_order.py
+        ├── orderbook_tui.py
+        ├── ticker_tui.py
+        ├── tape_tui.py
+        └── launch.py         # macOS dispatcher (spawns widgets in new window)
 ```
 
 ## Environment variables
