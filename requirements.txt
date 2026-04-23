@@ -1,0 +1,10 @@
+# The market-data scripts use only the Python standard library — no install
+# needed for that path. The deps below cover the optional features.
+
+# Widgets — needed only for scripts/widgets/* (live TUI dashboards).
+rich>=13.0
+websocket-client>=1.6
+
+# Trading — needed only for scripts/trading/* (signed /exchange actions).
+hyperliquid-python-sdk>=0.9
+eth-account>=0.9
