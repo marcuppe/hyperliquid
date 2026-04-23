@@ -36,6 +36,7 @@ Trigger on any of:
 4. **Live / streaming data?** → WebSocket. See [references/websocket.md](references/websocket.md).
 5. **Place, cancel, or modify an order?** → requires a private key. See [references/trading.md](references/trading.md) and `scripts/trading/`.
 6. **Launch a spot token or run a HIP-3 dex?** → deployer-side actions on `/exchange`. See [references/deployer.md](references/deployer.md) — covers the full HIP-1/HIP-2 spot deploy sequence and every HIP-3 action (`registerAsset2`, `setOracle`, `haltTrading`, `setOpenInterestCaps`, `setFeeScale`, `setSubDeployers`, etc.).
+7. **Building a web / desktop frontend on Hyperliquid?** → orchestration guide covering WS market-data subs, `webData2` user-state firehose, wallet-connect vs. agent-wallet trading patterns, the two EIP-712 signing conventions (L1 vs. user-signed), and reconnect/resync hygiene. See [references/frontend.md](references/frontend.md).
 
 ## Safety rules (read before trading)
 
