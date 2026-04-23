@@ -8,6 +8,7 @@ An agent skill for [Hyperliquid](https://hyperliquid.xyz) — the on-chain perps
 - Subscribe to live data via WebSocket (trades, L2 updates, user events)
 - Place and cancel orders via the Exchange endpoint — testnet by default, mainnet requires explicit opt-in + confirmation, with agent-wallet guidance so you don't hand a bot your master key
 - Launch **live TUI widgets** (`orderbook`, `ticker`, `tape`) in a floating terminal window on macOS — HL-mint colored L2 ladder, multi-market price cards with sparklines + funding, and a scrolling trade tape with rolling flow delta. Works with native coins *and* HIP-3 markets.
+- **Deployer-side reference** for launching a spot coin (HIP-1/HIP-2 sequence: `registerToken2` → `userGenesis` → `genesis` → `registerSpot` → `registerHyperliquidity`) or running a HIP-3 perp dex (`registerAsset2`, `setOracle`, `haltTrading`, OI caps, fee scale, sub-deployers, etc.) with exact payload shapes for every action
 
 Example prompts once it's installed:
 
@@ -55,7 +56,8 @@ hyperliquid/
 ├── references/
 │   ├── info-api.md           # every /info endpoint with exact payloads
 │   ├── websocket.md          # WS subscription types and message shapes
-│   └── trading.md            # signing, agent wallets, order types, safety
+│   ├── trading.md            # signing, agent wallets, order types, safety
+│   └── deployer.md           # spot token deploy (HIP-1/HIP-2) + HIP-3 dex ops
 └── scripts/
     ├── market_data/          # runnable, no key required, stdlib-only
     │   ├── all_mids.py

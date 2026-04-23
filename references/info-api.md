@@ -258,6 +258,12 @@ Response: `{"balances": [{"coin": "PURR", "token": 1, "hold": "0.0", "total": "1
 ```
 Response: tokens the user is currently deploying (HIP-1 auction state) plus `gasAuction` status.
 
+### `spotPairDeployAuctionStatus`
+```json
+{"type": "spotPairDeployAuctionStatus"}
+```
+Response: the shared Dutch auction state for registering a new trading *pair* between two already-existing spot tokens (separate from the token-registration auction exposed by `spotDeployState`).
+
 ---
 
 ## User history

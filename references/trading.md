@@ -2,6 +2,8 @@
 
 Writing to Hyperliquid means signing an action with a private key and POSTing to `/exchange`. **Always use the official SDK for signing** — there are two different signing conventions (L1 actions vs. "user-signed" actions) and getting them wrong either bricks the request or opens you up to replay.
 
+This file covers *trader-side* actions: placing, canceling, modifying orders; transfers; leverage. For *creator-side* actions — launching a spot token (HIP-1/HIP-2) or running a HIP-3 perp dex (`registerAsset2`, `setOracle`, `haltTrading`, `setOpenInterestCaps`, fee shares, sub-deployers, etc.) — see [deployer.md](deployer.md).
+
 **URL:**
 - Mainnet: `POST https://api.hyperliquid.xyz/exchange`
 - Testnet: `POST https://api.hyperliquid-testnet.xyz/exchange`
