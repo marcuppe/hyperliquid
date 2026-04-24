@@ -39,7 +39,7 @@ from _common import (  # noqa: E402
     DIM,
 )
 
-DEPTH_DEFAULT = 16
+DEPTH_DEFAULT = 8
 BAR_WIDTH = 22
 
 

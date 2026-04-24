@@ -34,7 +34,7 @@ WIDGETS: dict[str, str] = {
 
 # Tunables that match the widget internals. Keep in sync with:
 #   orderbook_tui.DEPTH_DEFAULT, tape_tui.TAPE_LEN_DEFAULT, ticker_tui.CARD_WIDTH
-ORDERBOOK_DEPTH_DEFAULT = 16
+ORDERBOOK_DEPTH_DEFAULT = 8
 TAPE_LEN_DEFAULT = 22
 TICKER_CARD_STRIDE = 27          # card width (26) + gutter (1)
 TICKER_ROWS_PER_CARD = 14        # content rows a single card needs
@@ -79,8 +79,9 @@ def compute_size(widget: str, args: list[str]) -> tuple[int, int]:
         return cols, rows
     if widget == "orderbook":
         depth = _parse_int_flag(args, "--depth", ORDERBOOK_DEPTH_DEFAULT)
-        # 2*depth levels + header/mid/seps/padding/border ≈ 2*depth + 10 rows
-        return 58, 2 * depth + 10
+        # Content needs ~2*depth + 9 rows; leave a lot of vertical slack so the
+        # window looks like a proper trading panel (and never clips content).
+        return 64, 2 * depth + 56
     if widget == "tape":
         tape_len = _parse_int_flag(args, "--rows", TAPE_LEN_DEFAULT)
         # tape_len rows + summary/sep/padding/border ≈ tape_len + 8
