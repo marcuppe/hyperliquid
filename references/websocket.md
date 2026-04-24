@@ -48,23 +48,30 @@ Inbound events look like:
 
 ### User-scoped (no auth — they key on a public address)
 
-| Type                | Params       | Data                                                                  |
-|---------------------|--------------|-----------------------------------------------------------------------|
-| `webData2`          | `user`       | Consolidated frontend state (positions + orders + balances + fills). Firehose used by the web UI. |
-| `notification`      | `user`       | System notifications (liquidation, fills, funding, deposits, etc.)    |
-| `userEvents`        | `user`       | `{fills?: [...], funding?: {...}, liquidation?: {...}, nonUserCancel?: [...]}` |
-| `userFills`         | `user`, optional `aggregateByTime` | Array of fills (same shape as info `userFills`)            |
-| `orderUpdates`      | `user`       | Array of `{order, status, statusTimestamp}`                           |
-| `userFundings`      | `user`       | Funding events as they occur                                          |
-| `userNonFundingLedgerUpdates` | `user` | Deposits, transfers, withdrawals                                      |
-| `activeAssetData`   | `user`, `coin` | Per-asset live data for this user (leverage, margin)                |
+| Type                            | Params                                  | Data                                                                                                                   |
+|---------------------------------|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------|
+| `webData3`                      | `user`                                  | Consolidated frontend state (positions + orders + balances + margin + fills). Firehose used by the Hyperliquid web UI. |
+| `notification`                  | `user`                                  | System notifications (liquidation, fills, funding, deposits, etc.)                                                     |
+| `userEvents`                    | `user`                                  | `{fills?: [...], funding?: {...}, liquidation?: {...}, nonUserCancel?: [...]}`                                         |
+| `userFills`                     | `user`, optional `aggregateByTime`      | Array of fills (same shape as info `userFills`)                                                                        |
+| `orderUpdates`                  | `user`                                  | Array of `{order, status, statusTimestamp}`                                                                            |
+| `userFundings`                  | `user`                                  | Funding events as they occur                                                                                           |
+| `userNonFundingLedgerUpdates`   | `user`                                  | Deposits, transfers, withdrawals                                                                                       |
+| `activeAssetData`               | `user`, `coin`                          | Per-asset live data for this user (leverage, margin)                                                                   |
+| `clearinghouseState`            | `user`, optional `dex`                  | Live perp clearinghouse (positions + margin summary). Same shape as the info endpoint.                                 |
+| `openOrders`                    | `user`, optional `dex`                  | Live open-orders snapshot. Same shape as info `openOrders`.                                                            |
+| `spotState`                     | `user`, optional `isPortfolioMargin`    | Live spot balances + margin state                                                                                      |
+| `allDexsClearinghouseState`     | `user`                                  | Clearinghouse state across native + every HIP-3 dex the user has positions on. One sub, all margin contexts.           |
 
 ### TWAP
 
-| Type                   | Params | Data                                    |
-|------------------------|--------|------------------------------------------|
-| `userTwapSliceFills`   | `user` | TWAP slice fills                         |
-| `userTwapHistory`      | `user` | TWAP orders lifecycle                    |
+| Type                   | Params                              | Data                          |
+|------------------------|-------------------------------------|-------------------------------|
+| `userTwapSliceFills`   | `user`                              | TWAP slice fills              |
+| `userTwapHistory`      | `user`                              | TWAP orders lifecycle         |
+| `twapStates`           | `user`, optional `dex`              | Live in-flight TWAP orders    |
+
+> **Note:** `webData2` was the previous-generation firehose and is no longer documented. Use `webData3`.
 
 ---
 

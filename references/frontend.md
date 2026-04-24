@@ -11,7 +11,7 @@ You'll typically run two long-lived WebSocket channels and a handful of signed `
  │  browser / desktop app                                  │
  │                                                         │
  │   WS #1 (market data)        WS #2 (user data)          │
- │   ─ allMids / l2Book /       ─ webData2  OR              │
+ │   ─ allMids / l2Book /       ─ webData3  OR              │
  │     trades / candle / bbo      ─ orderUpdates             │
  │     / activeAssetCtx            + userFills + userEvents │
  │                                                         │
@@ -69,14 +69,14 @@ For HIP-3 markets (`xyz:AAPL`, `flx:CRCL`), the `coin` field takes the prefixed 
 
 Two realistic shapes, pick one:
 
-### Option A — `webData2` (firehose)
+### Option A — `webData3` (firehose)
 
 One subscription, one shot, everything in it. This is what the official Hyperliquid web UI uses. Payload includes positions, open orders, balances, recent fills, perp + spot margin summary, agent wallet info, and more.
 
 ```js
 ws.send(JSON.stringify({
   method: "subscribe",
-  subscription: { type: "webData2", user: "0x..." }
+  subscription: { type: "webData3", user: "0x..." }
 }));
 ```
 
@@ -115,7 +115,7 @@ seedStore(clearinghouse, openOrders, recentFills);
 // 2. stream
 ws.send(JSON.stringify({
   method: "subscribe",
-  subscription: { type: "webData2", user }
+  subscription: { type: "webData3", user }
 }));
 ```
 
