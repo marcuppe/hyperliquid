@@ -34,7 +34,7 @@ WIDGETS: dict[str, str] = {
 
 # Tunables that match the widget internals. Keep in sync with:
 #   orderbook_tui.DEPTH_DEFAULT, tape_tui.TAPE_LEN_DEFAULT, ticker_tui.CARD_WIDTH
-ORDERBOOK_DEPTH_DEFAULT = 12
+ORDERBOOK_DEPTH_DEFAULT = 16
 TAPE_LEN_DEFAULT = 22
 TICKER_CARD_STRIDE = 27          # card width (26) + gutter (1)
 TICKER_ROWS_PER_CARD = 14        # content rows a single card needs
