@@ -48,15 +48,24 @@ Quit a widget with `Ctrl-C`.
 
 All three accept HIP-3 coins in `dex:COIN` form (e.g. `xyz:AAPL`, `flx:CRCL`).
 
-## Default window sizes
+## Window sizes (computed, not fixed)
 
-| Widget    | Size (cols × rows) |
-|-----------|--------------------|
-| ticker    | 112 × 14           |
-| orderbook | 60 × 40            |
-| tape      | 64 × 40            |
+`launch.py` picks window dimensions based on what you're rendering, so the widget always fits its content and doesn't run off a laptop screen:
 
-Drag them onto a second monitor, tile two or three, and it looks like a trading desk.
+| Widget    | How the size is computed                                                                               |
+|-----------|--------------------------------------------------------------------------------------------------------|
+| ticker    | `(cards_per_row × 27 + 1)` wide × `(rows_of_cards × 14 + 2)` tall. Wraps at 6 cards per row.           |
+| orderbook | `58` wide × `(2 × depth + 10)` tall. Default depth = 10 → 30 rows. `--depth 14` → 38 rows, and so on.  |
+| tape      | `56` wide × `(rows + 8)` tall. Default rows = 22 → 30 rows. `--rows 32` → 40 rows.                     |
+
+Flags to grow content (and the window) if your screen is bigger:
+
+```bash
+python scripts/widgets/launch.py orderbook BTC --depth 14
+python scripts/widgets/launch.py tape BTC --rows 32
+```
+
+Drag the windows onto a second monitor, tile two or three, and it looks like a trading desk.
 
 ## Env
 

@@ -2,8 +2,9 @@
 """Live L2 orderbook widget (rich + WebSocket).
 
 Usage:
-    python orderbook_tui.py BTC
-    python orderbook_tui.py xyz:AAPL        # HIP-3 market
+    python orderbook_tui.py BTC                    # default: 10 levels/side
+    python orderbook_tui.py xyz:AAPL               # HIP-3 market
+    python orderbook_tui.py BTC --depth 14         # deeper ladder (needs taller window)
 
 Env:
     HL_ENV=mainnet|testnet  (default: mainnet)
@@ -38,15 +39,40 @@ from _common import (  # noqa: E402
     DIM,
 )
 
-DEPTH = 14
+DEPTH_DEFAULT = 10
 BAR_WIDTH = 22
 
 
+def _parse_int_flag(argv: list[str], flag: str, default: int) -> int:
+    if flag in argv:
+        idx = argv.index(flag)
+        if idx + 1 < len(argv):
+            try:
+                return int(argv[idx + 1])
+            except ValueError:
+                pass
+    return default
+
+
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("usage: orderbook_tui.py COIN", file=sys.stderr)
+    argv = sys.argv[1:]
+    positional: list[str] = []
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--depth" and i + 1 < len(argv):
+            i += 2
+            continue
+        if argv[i].startswith("--"):
+            i += 1
+            continue
+        positional.append(argv[i])
+        i += 1
+
+    if not positional:
+        print("usage: orderbook_tui.py COIN [--depth N]", file=sys.stderr)
         return 2
-    coin = normalize_coin(sys.argv[1])
+    coin = normalize_coin(positional[0])
+    depth = _parse_int_flag(argv, "--depth", DEPTH_DEFAULT)
 
     state: dict = {"book": None, "prev_mid": None}
     lock = threading.Lock()
@@ -73,12 +99,12 @@ def main() -> int:
                 body,
                 title=f" Hyperliquid · {coin} ",
                 border_style=MINT,
-                height=DEPTH * 2 + 8,
+                height=depth * 2 + 8,
                 padding=(1, 2),
             )
 
-        bids = snap["levels"][0][:DEPTH]
-        asks = snap["levels"][1][:DEPTH]
+        bids = snap["levels"][0][:depth]
+        asks = snap["levels"][1][:depth]
         all_sz = [float(lvl["sz"]) for lvl in bids + asks] or [1.0]
         max_sz = max(all_sz)
 

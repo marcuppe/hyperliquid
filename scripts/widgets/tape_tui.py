@@ -2,8 +2,9 @@
 """Scrolling trade tape widget (rich + WebSocket).
 
 Usage:
-    python tape_tui.py BTC
+    python tape_tui.py BTC                 # default: 22 rows of tape
     python tape_tui.py xyz:TSLA
+    python tape_tui.py BTC --rows 32       # longer tape (needs taller window)
 
 Env:
     HL_ENV=mainnet|testnet  (default: mainnet)
@@ -38,16 +39,41 @@ from _common import (  # noqa: E402
     DIM,
 )
 
-TAPE_LEN = 32
+TAPE_LEN_DEFAULT = 22
+
+
+def _parse_int_flag(argv: list[str], flag: str, default: int) -> int:
+    if flag in argv:
+        idx = argv.index(flag)
+        if idx + 1 < len(argv):
+            try:
+                return int(argv[idx + 1])
+            except ValueError:
+                pass
+    return default
 
 
 def main() -> int:
-    if len(sys.argv) < 2:
-        print("usage: tape_tui.py COIN", file=sys.stderr)
-        return 2
-    coin = normalize_coin(sys.argv[1])
+    argv = sys.argv[1:]
+    positional: list[str] = []
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--rows" and i + 1 < len(argv):
+            i += 2
+            continue
+        if argv[i].startswith("--"):
+            i += 1
+            continue
+        positional.append(argv[i])
+        i += 1
 
-    tape: deque = deque(maxlen=TAPE_LEN)
+    if not positional:
+        print("usage: tape_tui.py COIN [--rows N]", file=sys.stderr)
+        return 2
+    coin = normalize_coin(positional[0])
+    tape_len = _parse_int_flag(argv, "--rows", TAPE_LEN_DEFAULT)
+
+    tape: deque = deque(maxlen=tape_len)
     recent: deque = deque()  # (epoch_s, side, sz, px) for rolling 1m
     lock = threading.Lock()
 
@@ -79,7 +105,7 @@ def main() -> int:
                 body,
                 title=f" Hyperliquid · {coin} tape ",
                 border_style=MINT,
-                height=TAPE_LEN + 6,
+                height=tape_len + 6,
                 padding=(1, 2),
             )
 

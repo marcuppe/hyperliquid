@@ -26,12 +26,66 @@ import subprocess
 import sys
 from pathlib import Path
 
-WIDGETS: dict[str, tuple[str, tuple[int, int]]] = {
-    # name: (script_filename, (cols, rows))
-    "orderbook": ("orderbook_tui.py", (60, 40)),
-    "ticker":    ("ticker_tui.py",    (112, 16)),
-    "tape":      ("tape_tui.py",      (64, 40)),
+WIDGETS: dict[str, str] = {
+    "orderbook": "orderbook_tui.py",
+    "ticker":    "ticker_tui.py",
+    "tape":      "tape_tui.py",
 }
+
+# Tunables that match the widget internals. Keep in sync with:
+#   orderbook_tui.DEPTH_DEFAULT, tape_tui.TAPE_LEN_DEFAULT, ticker_tui.CARD_WIDTH
+ORDERBOOK_DEPTH_DEFAULT = 10
+TAPE_LEN_DEFAULT = 22
+TICKER_CARD_STRIDE = 27          # card width (26) + gutter (1)
+TICKER_ROWS_PER_CARD = 14        # content rows a single card needs
+MAX_TICKER_CARDS_PER_ROW = 6     # wrap beyond this
+
+
+def _parse_int_flag(argv: list[str], flag: str, default: int) -> int:
+    if flag in argv:
+        idx = argv.index(flag)
+        if idx + 1 < len(argv):
+            try:
+                return int(argv[idx + 1])
+            except ValueError:
+                pass
+    return default
+
+
+def _positional_count(argv: list[str], flags_with_value: set[str]) -> int:
+    """Count positional (non-flag) args, skipping flag values."""
+    n = 0
+    i = 0
+    while i < len(argv):
+        if argv[i] in flags_with_value and i + 1 < len(argv):
+            i += 2
+            continue
+        if argv[i].startswith("--"):
+            i += 1
+            continue
+        n += 1
+        i += 1
+    return n
+
+
+def compute_size(widget: str, args: list[str]) -> tuple[int, int]:
+    """Return (cols, rows) tailored to what's being rendered."""
+    if widget == "ticker":
+        coins = max(1, _positional_count(args, set()))
+        per_row = min(coins, MAX_TICKER_CARDS_PER_ROW)
+        rows_of_cards = (coins + per_row - 1) // per_row
+        cols = per_row * TICKER_CARD_STRIDE + 1
+        rows = rows_of_cards * TICKER_ROWS_PER_CARD + 2
+        return cols, rows
+    if widget == "orderbook":
+        depth = _parse_int_flag(args, "--depth", ORDERBOOK_DEPTH_DEFAULT)
+        # 2*depth levels + header/mid/seps/padding/border ≈ 2*depth + 10 rows
+        return 58, 2 * depth + 10
+    if widget == "tape":
+        tape_len = _parse_int_flag(args, "--rows", TAPE_LEN_DEFAULT)
+        # tape_len rows + summary/sep/padding/border ≈ tape_len + 8
+        return 56, tape_len + 8
+    return 80, 24
 
 
 def build_command(script_path: Path, args: list[str]) -> str:
@@ -108,13 +162,14 @@ def main() -> int:
         print(f"unknown widget {name!r}. known: {', '.join(WIDGETS)}", file=sys.stderr)
         return 2
 
-    script_name, size = WIDGETS[name]
+    script_name = WIDGETS[name]
     script_path = Path(__file__).parent / script_name
     if not script_path.exists():
         print(f"missing widget script: {script_path}", file=sys.stderr)
         return 2
 
     args = sys.argv[2:]
+    size = compute_size(name, args)
     cmd = build_command(script_path, args)
     title = f"Hyperliquid · {name}"
     if args:
